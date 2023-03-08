@@ -13,6 +13,7 @@
 			<div class="col py-5">
 				<h1 class="fw-bold">{{ $project['title'] }}</h1>
 				<p>{{ $project['content'] }}</p>
+				<img src="{{ asset('storage/' . $project->cover_image) }}" style="width: 80%">
 				<div class="mb-3"><h5 class="fw-bold d-inline">Categoria</h5>: {{ $project->type ? $project->type->name : 'nessuna categoria' }}</div>
 				<div class="mb-3">
 					<h5 class="fw-bold">Tecnologie</h5>
