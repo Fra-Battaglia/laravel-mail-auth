@@ -22,7 +22,7 @@
 					<h3 class="fw-bold">MODIFICA PROGETTO</h3>
 					<a href="{{ route('admin.projects.index') }}"><button class="btn btn-secondary"><i class="fa-solid fa-arrow-left me-2"></i>Torna alla lista progetti</button></a>
 				</div>
-				<form action="{{route("admin.projects.update", $project->slug)}}" method="POST" class="py-4 comic-form">
+				<form action="{{route("admin.projects.update", $project->slug)}}" method="POST" enctype="multipart/form-data" class="py-4 comic-form">
 					@csrf
 					@method('PUT')
 					<div class="mb-4">
@@ -54,6 +54,12 @@
 							</div>
 						@endforeach
 					</div>
+
+					<div class="mb-4">
+						<label for="" class="form-label">Copertina</label>
+						<input type="file" class="form-control @error('cover_image') is-invalid @enderror" id="cover_image" name="cover_image" placeholder="Inserisci immagine">
+						{{-- <input type="file" name="cover_image" class="form-control @error('cover_image')is-invalid @enderror" placeholder="carica immagine, stronzo" id="cover_image"> --}}
+					</div>	
 
 					<div class="form-group">
 						<button type="submit" class="btn btn-primary">Salva modifiche</button>

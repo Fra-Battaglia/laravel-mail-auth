@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Type;
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Technology;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
@@ -43,11 +43,33 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
+        // $form_data = $request->validated();
+        // $slug = Project::generateSlug($form_data['title']);
+        // $form_data['slug'] = $slug;
+        // $project = Project::create($form_data);
+        // $project->technologies()->attach($request->technologies);
+
+        // if ($request->hasFile('cover_image')){
+        // //     $img_path = Storage::put('public', $form_data['cover_image']);
+        // //     $form_data['cover_image'] = $img_path;
+        //     $img_path = Storage::disk('public')->put('project_images', $request->cover_image);
+        //     $form_data['cover_image'] = $img_path;
+        // }
+
         $form_data = $request->validated();
-        $slug = Project::generateSlug($form_data['title']);
+        $slug = Project::generateSlug($request->title);
         $form_data['slug'] = $slug;
+        $project = new Project();
         $project = Project::create($form_data);
         $project->technologies()->attach($request->technologies);
+        if ($request->hasFile('cover_image')) {
+            $path = Storage::disk('public')->put('project_images', $request->cover_image);
+
+            $form_data['cover_image'] = $path;
+        }
+
+        $project->fill($form_data);
+        $project->save();
 
         return redirect()->route('admin.projects.index');
     }
@@ -88,6 +110,11 @@ class ProjectController extends Controller
         $form_data = $request->validated();
         $slug = Project::generateSlug($form_data['title']);
         $form_data['slug'] = $slug;
+        if($request->has('cover_image')) {
+            if($project->cover_image) {
+                Storage::delete($project->cover_image);;
+            }
+        }
         $project->technologies()->sync($request->technologies);
         $project->update($form_data);
         return redirect()->route('admin.projects.index');
@@ -102,6 +129,7 @@ class ProjectController extends Controller
     public function destroy(Project $project)
     {
         $project->delete();
+        $project->technologies()->sync([]);
         return redirect()->route('admin.projects.index');
     }
 }
