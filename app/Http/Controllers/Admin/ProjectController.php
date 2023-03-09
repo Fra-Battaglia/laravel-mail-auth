@@ -127,6 +127,10 @@ class ProjectController extends Controller
             if($project->cover_image) {
                 Storage::delete($project->cover_image);;
             }
+
+            $path = Storage::disk('public')->put('project_images', $request->cover_image);
+
+            $form_data['cover_image'] = $path;
         }
         $project->technologies()->sync($request->technologies);
         $project->update($form_data);
