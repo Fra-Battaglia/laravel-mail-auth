@@ -46,35 +46,26 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request)
     {
-        // $form_data = $request->validated();
-        // $slug = Project::generateSlug($form_data['title']);
-        // $form_data['slug'] = $slug;
-        // $project = Project::create($form_data);
-        // $project->technologies()->attach($request->technologies);
-
-        // if ($request->hasFile('cover_image')){
-        // //     $img_path = Storage::put('public', $form_data['cover_image']);
-        // //     $form_data['cover_image'] = $img_path;
-        //     $img_path = Storage::disk('public')->put('project_images', $request->cover_image);
-        //     $form_data['cover_image'] = $img_path;
-        // }
-
         $form_data = $request->validated();
         $slug = Project::generateSlug($request->title);
         $form_data['slug'] = $slug;
         $project = new Project();
         $project = Project::create($form_data);
-        $project->technologies()->attach($request->technologies);
-        if ($request->hasFile('cover_image')) {
-            $path = Storage::disk('public')->put('project_images', $request->cover_image);
 
+        // Technologies
+        $project->technologies()->attach($request->technologies);
+
+        // Cover image
+        if ($request->hasFile('cover_image')) {
+
+            $path = Storage::disk('public')->put('project_images', $request->cover_image);
             $form_data['cover_image'] = $path;
         }
 
         $project->fill($form_data);
         $project->save();
 
-        //lead
+        // Lead
         $new_lead = new Lead();
         $new_lead->title = $form_data['title'];
         $new_lead->content = $form_data['content'];
@@ -123,17 +114,21 @@ class ProjectController extends Controller
         $form_data = $request->validated();
         $slug = Project::generateSlug($form_data['title']);
         $form_data['slug'] = $slug;
+
+        // Cover image
         if($request->has('cover_image')) {
             if($project->cover_image) {
                 Storage::delete($project->cover_image);;
             }
 
             $path = Storage::disk('public')->put('project_images', $request->cover_image);
-
             $form_data['cover_image'] = $path;
         }
+
+        // Technologies
         $project->technologies()->sync($request->technologies);
         $project->update($form_data);
+
         return redirect()->route('admin.projects.index');
     }
 
